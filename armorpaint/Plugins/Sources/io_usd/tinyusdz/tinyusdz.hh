@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <utility>
 #include <vector>
+#include <stdint.h>
 
 #define TINYUSDZ_LOCAL_DEBUG_PRINT (0) ////
 
