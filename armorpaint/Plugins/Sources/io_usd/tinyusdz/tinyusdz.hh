@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <utility>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 #define TINYUSDZ_LOCAL_DEBUG_PRINT (0) ////
 
@@ -57,7 +57,7 @@ struct Image {
   int channels{-1};  // Image channels. 3=RGB, 4=RGBA. -1 = invalid
   int bpp{-1};       // bits per pixel. 8=LDR, 16=HDR
 
-  std::vector<uint8_t> data;
+  std::vector<std::uint8_t> data;
 };
 
 // TODO(syoyo): Support Big Endian
@@ -105,7 +105,7 @@ float16 float_to_half_full(float f);
 template <typename T, size_t N>
 struct Matrix {
   T m[N][N];
-  constexpr static uint32_t n = N;
+  constexpr static std::uint32_t n = N;
 };
 
 using Matrix2f = Matrix<float, 2>;
@@ -115,15 +115,15 @@ using Matrix3d = Matrix<double, 3>;
 using Matrix4f = Matrix<float, 4>;
 using Matrix4d = Matrix<double, 4>;
 
-using Vec4i = std::array<int32_t, 4>;
-using Vec3i = std::array<int32_t, 3>;
-using Vec2i = std::array<int32_t, 2>;
+using Vec4i = std::array<std::int32_t, 4>;
+using Vec3i = std::array<std::int32_t, 3>;
+using Vec2i = std::array<std::int32_t, 2>;
 
-// Use uint16_t for storage of half type.
+// Use std::uint16_t for storage of half type.
 // Need to decode/encode value through half converter functions
-using Vec4h = std::array<uint16_t, 4>;
-using Vec3h = std::array<uint16_t, 3>;
-using Vec2h = std::array<uint16_t, 2>;
+using Vec4h = std::array<std::uint16_t, 4>;
+using Vec3h = std::array<std::uint16_t, 3>;
+using Vec2h = std::array<std::uint16_t, 2>;
 
 using Vec4f = std::array<float, 4>;
 using Vec3f = std::array<float, 3>;
@@ -133,7 +133,7 @@ using Vec4d = std::array<double, 4>;
 using Vec3d = std::array<double, 3>;
 using Vec2d = std::array<double, 2>;
 
-using Quath = std::array<uint16_t, 4>;
+using Quath = std::array<std::uint16_t, 4>;
 using Quatf = std::array<float, 4>;
 using Quatd = std::array<double, 4>;
 using Quaternion = std::array<double, 4>;  // Storage layout is same with Quadd,
@@ -257,7 +257,7 @@ struct ListOpHeader {
 
   ListOpHeader() : bits(0) {}
 
-  explicit ListOpHeader(uint8_t b) : bits(b) {}
+  explicit ListOpHeader(std::uint8_t b) : bits(b) {}
 
   explicit ListOpHeader(ListOpHeader const &op) : bits(0) {
     bits |= op.IsExplicit() ? IsExplicitBit : 0;
@@ -278,7 +278,7 @@ struct ListOpHeader {
   bool HasDeletedItems() const { return bits & HasDeletedItemsBit; }
   bool HasOrderedItems() const { return bits & HasOrderedItemsBit; }
 
-  uint8_t bits;
+  std::uint8_t bits;
 };
 
 ///
@@ -509,7 +509,7 @@ enum ValueTypeId {
 struct ValueType {
   ValueType()
       : name("Invalid"), id(VALUE_TYPE_INVALID), supports_array(false) {}
-  ValueType(const std::string &n, uint32_t i, bool a)
+  ValueType(const std::string &n, std::uint32_t i, bool a)
       : name(n), id(ValueTypeId(i)), supports_array(a) {}
 
   std::string name;
@@ -596,11 +596,11 @@ class Value {
 
   Value() = default;
 
-  Value(const ValueType &_dtype, const std::vector<uint8_t> &_data)
+  Value(const ValueType &_dtype, const std::vector<std::uint8_t> &_data)
       : dtype(_dtype), data(_data), array_length(-1) {}
-  Value(const ValueType &_dtype, const std::vector<uint8_t> &_data,
-        uint64_t _array_length)
-      : dtype(_dtype), data(_data), array_length(int64_t(_array_length)) {}
+  Value(const ValueType &_dtype, const std::vector<std::uint8_t> &_data,
+        std::uint64_t _array_length)
+      : dtype(_dtype), data(_data), array_length(std::int64_t(_array_length)) {}
 
   bool IsArray() const {
     if ((array_length > 0) || string_array.size() ||
@@ -615,7 +615,7 @@ class Value {
     dtype.name = "Bool";
     dtype.id = VALUE_TYPE_BOOL;
 
-    uint8_t value = d ? 1 : 0;
+    std::uint8_t value = d ? 1 : 0;
     data.resize(1);
     data[0] = value;
   }
@@ -628,36 +628,36 @@ class Value {
     data[0] = d;
   }
 
-  void SetInt(const int32_t i) {
-    static_assert(sizeof(int32_t) == 4, "");
+  void SetInt(const std::int32_t i) {
+    static_assert(sizeof(std::int32_t) == 4, "");
     dtype.name = "Int";
     dtype.id = VALUE_TYPE_INT;
-    data.resize(sizeof(int32_t));
-    memcpy(data.data(), reinterpret_cast<const void *>(&i), sizeof(int32_t));
+    data.resize(sizeof(std::int32_t));
+    memcpy(data.data(), reinterpret_cast<const void *>(&i), sizeof(std::int32_t));
   }
 
-  void SetUInt(const uint32_t i) {
-    static_assert(sizeof(uint32_t) == 4, "");
+  void SetUInt(const std::uint32_t i) {
+    static_assert(sizeof(std::uint32_t) == 4, "");
     dtype.name = "UInt";
     dtype.id = VALUE_TYPE_UINT;
-    data.resize(sizeof(uint32_t));
-    memcpy(data.data(), reinterpret_cast<const void *>(&i), sizeof(uint32_t));
+    data.resize(sizeof(std::uint32_t));
+    memcpy(data.data(), reinterpret_cast<const void *>(&i), sizeof(std::uint32_t));
   }
 
-  void SetInt64(const int64_t i) {
-    static_assert(sizeof(int64_t) == 8, "");
+  void SetInt64(const std::int64_t i) {
+    static_assert(sizeof(std::int64_t) == 8, "");
     dtype.name = "Int64";
     dtype.id = VALUE_TYPE_INT64;
-    data.resize(sizeof(int64_t));
-    memcpy(data.data(), reinterpret_cast<const void *>(&i), sizeof(int64_t));
+    data.resize(sizeof(std::int64_t));
+    memcpy(data.data(), reinterpret_cast<const void *>(&i), sizeof(std::int64_t));
   }
 
-  void SetUInt64(const uint64_t i) {
-    static_assert(sizeof(uint64_t) == 8, "");
+  void SetUInt64(const std::uint64_t i) {
+    static_assert(sizeof(std::uint64_t) == 8, "");
     dtype.name = "UInt64";
     dtype.id = VALUE_TYPE_UINT64;
-    data.resize(sizeof(uint64_t));
-    memcpy(data.data(), reinterpret_cast<const void *>(&i), sizeof(uint64_t));
+    data.resize(sizeof(std::uint64_t));
+    memcpy(data.data(), reinterpret_cast<const void *>(&i), sizeof(std::uint64_t));
   }
 
   void SetDouble(const double d) {
@@ -679,8 +679,8 @@ class Value {
   void SetHalf(const float16 d) {
     dtype.name = "Half";
     dtype.id = VALUE_TYPE_HALF;
-    data.resize(sizeof(uint16_t));
-    memcpy(data.data(), reinterpret_cast<const void *>(&d.u), sizeof(uint16_t));
+    data.resize(sizeof(std::uint16_t));
+    memcpy(data.data(), reinterpret_cast<const void *>(&d.u), sizeof(std::uint16_t));
   }
 
   void SetVec2i(const Vec2i v) {
@@ -850,52 +850,52 @@ class Value {
     memcpy(data.data(), reinterpret_cast<const void *>(&s[0]), s.size());
   }
 
-  void SetPermission(const uint32_t d) {
+  void SetPermission(const std::uint32_t d) {
     // TODO(syoyo): range check
     dtype.name = "Permission";
     dtype.id = VALUE_TYPE_PERMISSION;
-    data.resize(sizeof(uint32_t));
-    memcpy(data.data(), reinterpret_cast<const void *>(&d), sizeof(uint32_t));
+    data.resize(sizeof(std::uint32_t));
+    memcpy(data.data(), reinterpret_cast<const void *>(&d), sizeof(std::uint32_t));
   }
 
-  void SetSpecifier(const uint32_t d) {
+  void SetSpecifier(const std::uint32_t d) {
     // TODO(syoyo): range check
     dtype.name = "Specifier";
     dtype.id = VALUE_TYPE_SPECIFIER;
-    data.resize(sizeof(uint32_t));
-    memcpy(data.data(), reinterpret_cast<const void *>(&d), sizeof(uint32_t));
+    data.resize(sizeof(std::uint32_t));
+    memcpy(data.data(), reinterpret_cast<const void *>(&d), sizeof(std::uint32_t));
   }
 
-  void SetVariability(const uint32_t d) {
+  void SetVariability(const std::uint32_t d) {
     // TODO(syoyo): range check
     dtype.name = "Variability";
     dtype.id = VALUE_TYPE_VARIABILITY;
-    data.resize(sizeof(uint32_t));
-    memcpy(data.data(), reinterpret_cast<const void *>(&d), sizeof(uint32_t));
+    data.resize(sizeof(std::uint32_t));
+    memcpy(data.data(), reinterpret_cast<const void *>(&d), sizeof(std::uint32_t));
   }
 
   void SetIntArray(const int *d, const size_t n) {
     dtype.name = "IntArray";
     dtype.id = VALUE_TYPE_INT;
-    array_length = int64_t(n);
-    data.resize(n * sizeof(uint32_t));
+    array_length = std::int64_t(n);
+    data.resize(n * sizeof(std::uint32_t));
     memcpy(data.data(), reinterpret_cast<const void *>(d),
-           n * sizeof(uint32_t));
+           n * sizeof(std::uint32_t));
   }
 
-  void SetHalfArray(const uint16_t *d, const size_t n) {
+  void SetHalfArray(const std::uint16_t *d, const size_t n) {
     dtype.name = "HalfArray";
     dtype.id = VALUE_TYPE_HALF;
-    array_length = int64_t(n);
-    data.resize(n * sizeof(uint16_t));
+    array_length = std::int64_t(n);
+    data.resize(n * sizeof(std::uint16_t));
     memcpy(data.data(), reinterpret_cast<const void *>(d),
-           n * sizeof(uint16_t));
+           n * sizeof(std::uint16_t));
   }
 
   void SetFloatArray(const float *d, const size_t n) {
     dtype.name = "FloatArray";
     dtype.id = VALUE_TYPE_FLOAT;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(float));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(float));
   }
@@ -903,7 +903,7 @@ class Value {
   void SetDoubleArray(const double *d, const size_t n) {
     dtype.name = "DoubleArray";
     dtype.id = VALUE_TYPE_DOUBLE;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(double));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(double));
   }
@@ -912,7 +912,7 @@ class Value {
     static_assert(sizeof(Vec2f) == 8, "");
     dtype.name = "Vec2fArray";
     dtype.id = VALUE_TYPE_VEC2F;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(Vec2f));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(Vec2f));
   }
@@ -921,7 +921,7 @@ class Value {
     static_assert(sizeof(Vec3f) == 12, "");
     dtype.name = "Vec3fArray";
     dtype.id = VALUE_TYPE_VEC3F;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(Vec3f));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(Vec3f));
   }
@@ -930,7 +930,7 @@ class Value {
     static_assert(sizeof(Vec4f) == 16, "");
     dtype.name = "Vec4fArray";
     dtype.id = VALUE_TYPE_VEC4F;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(Vec4f));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(Vec4f));
   }
@@ -939,7 +939,7 @@ class Value {
     static_assert(sizeof(Vec2d) == 16, "");
     dtype.name = "Vec2dArray";
     dtype.id = VALUE_TYPE_VEC2D;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(Vec2d));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(Vec2d));
   }
@@ -948,7 +948,7 @@ class Value {
     static_assert(sizeof(Vec3d) == 24, "");
     dtype.name = "Vec3dArray";
     dtype.id = VALUE_TYPE_VEC3D;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(Vec3d));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(Vec3d));
   }
@@ -957,7 +957,7 @@ class Value {
     static_assert(sizeof(Vec4d) == 32, "");
     dtype.name = "Vec4dArray";
     dtype.id = VALUE_TYPE_VEC4D;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(Vec4d));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(Vec4d));
   }
@@ -966,7 +966,7 @@ class Value {
     static_assert(sizeof(Quath) == 8, "");
     dtype.name = "QuathArray";
     dtype.id = VALUE_TYPE_QUATH;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(Quath));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(Quath));
   }
@@ -975,7 +975,7 @@ class Value {
     static_assert(sizeof(Quatf) == 16, "");
     dtype.name = "QuatfArray";
     dtype.id = VALUE_TYPE_QUATF;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(Quatf));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(Quatf));
   }
@@ -984,7 +984,7 @@ class Value {
     static_assert(sizeof(Quatd) == 32, "");
     dtype.name = "QuatdArray";
     dtype.id = VALUE_TYPE_QUATD;
-    array_length = int64_t(n);
+    array_length = std::int64_t(n);
     data.resize(n * sizeof(Quatd));
     memcpy(data.data(), reinterpret_cast<const void *>(d), n * sizeof(Quatd));
   }
@@ -992,7 +992,7 @@ class Value {
   void SetTokenArray(const std::vector<std::string> &d) {
     dtype.name = "TokenArray";
     dtype.id = VALUE_TYPE_TOKEN_VECTOR;
-    array_length = int64_t(d.size());
+    array_length = std::int64_t(d.size());
     string_array = d;
   }
 
@@ -1000,7 +1000,7 @@ class Value {
     dtype.name = "PathListOp";
     dtype.id = VALUE_TYPE_PATH_LIST_OP;
     // FIXME(syoyo): How to determine array length?
-    // array_length = int64_t(d.size());
+    // array_length = std::int64_t(d.size());
     path_list_op = d;
   }
 
@@ -1008,7 +1008,7 @@ class Value {
     dtype.name = "TimeSamples";
     dtype.id = VALUE_TYPE_TIME_SAMPLES;
     // FIXME(syoyo): How to determine array length?
-    // array_length = int64_t(d.size());
+    // array_length = std::int64_t(d.size());
     time_samples = d;
   }
 
@@ -1017,7 +1017,7 @@ class Value {
   // Getter for frequently used types.
   Specifier GetSpecifier() const {
     if (dtype.id == VALUE_TYPE_SPECIFIER) {
-      uint32_t d = *reinterpret_cast<const uint32_t *>(data.data());
+      std::uint32_t d = *reinterpret_cast<const std::uint32_t *>(data.data());
       return static_cast<Specifier>(d);
     }
     return NumSpecifiers;  // invalid
@@ -1025,7 +1025,7 @@ class Value {
 
   Variability GetVariability() const {
     if (dtype.id == VALUE_TYPE_VARIABILITY) {
-      uint32_t d = *reinterpret_cast<const uint32_t *>(data.data());
+      std::uint32_t d = *reinterpret_cast<const std::uint32_t *>(data.data());
       return static_cast<Variability>(d);
     }
     return NumVariabilities;  // invalid
@@ -1037,7 +1037,7 @@ class Value {
     }
 
     if (dtype.id == VALUE_TYPE_BOOL) {
-      uint8_t d = *reinterpret_cast<const uint8_t *>(data.data());
+      std::uint8_t d = *reinterpret_cast<const std::uint8_t *>(data.data());
       (*ret) = bool(d);
       return true;
     }
@@ -1099,7 +1099,7 @@ class Value {
     return string_array;
   }
 
-  const std::vector<uint8_t> &GetData() const {
+  const std::vector<std::uint8_t> &GetData() const {
     // TODO(syoyo): Report error for Dictionary type.
     return data;
   }
@@ -1120,8 +1120,8 @@ class Value {
  private:
   ValueType dtype;
   std::string string_value;
-  std::vector<uint8_t> data;  // value as opaque binary data.
-  int64_t array_length{-1};
+  std::vector<std::uint8_t> data;  // value as opaque binary data.
+  std::int64_t array_length{-1};
 
   // Dictonary, ListOp and array of string has separated storage
   std::vector<std::string> string_array;
@@ -1131,10 +1131,10 @@ class Value {
   // TODO(syoyo): Reference
 
   // TODO(syoyo): Use single representation for integral types
-  ListOp<int32_t> int_list_op;
-  ListOp<uint32_t> int64_list_op;
-  ListOp<int64_t> uint_list_op;
-  ListOp<uint64_t> uint64_list_op;
+  ListOp<std::int32_t> int_list_op;
+  ListOp<std::uint32_t> int64_list_op;
+  ListOp<std::int64_t> uint_list_op;
+  ListOp<std::uint64_t> uint64_list_op;
 
   TimeSamples time_samples;
 };
@@ -1161,16 +1161,16 @@ struct BufferData {
     BUFFER_DATA_TYPE_DOUBLE,
   };
 
-  std::vector<uint8_t> data;  // Opaque byte data.
+  std::vector<std::uint8_t> data;  // Opaque byte data.
   size_t stride{
       0};  // byte stride for each element. e.g. 12 for XYZXYZXYZ... data. 0 =
            // app should calculate byte stride from type and `num_coords`.
-  int32_t num_coords{-1};  // The number of coordinates. e.g. 3 for XYZ, RGB
+  std::int32_t num_coords{-1};  // The number of coordinates. e.g. 3 for XYZ, RGB
                            // data, 4 for RGBA. -1 = invalid
   DataType data_type{BUFFER_DATA_TYPE_INVALID};
 
-  void Set(DataType ty, int32_t c, size_t _stride,
-           const std::vector<uint8_t> &_data) {
+  void Set(DataType ty, std::int32_t c, size_t _stride,
+           const std::vector<std::uint8_t> &_data) {
     data_type = ty;
     num_coords = c;
     stride = _stride;
@@ -1239,7 +1239,7 @@ struct BufferData {
     return n;
   }
 
-  int32_t GetNumCoords() const { return num_coords; }
+  std::int32_t GetNumCoords() const { return num_coords; }
 
   DataType GetDataType() const { return data_type; }
 
@@ -1272,31 +1272,31 @@ struct BufferData {
 
   // Return empty array when required type mismatches.
   //
-  std::vector<uint32_t> GetAsUInt32Array() const {
-    std::vector<uint32_t> buf;
+  std::vector<std::uint32_t> GetAsUInt32Array() const {
+    std::vector<std::uint32_t> buf;
 
-    if (((GetStride() == 0) || (GetStride() == sizeof(uint32_t))) &&
+    if (((GetStride() == 0) || (GetStride() == sizeof(std::uint32_t))) &&
         (GetDataType() == BUFFER_DATA_TYPE_UNSIGNED_INT)) {
       buf.resize(GetNumElements() * size_t(GetNumCoords()));
 #if TINYUSDZ_LOCAL_DEBUG_PRINT
       std::cout << "buf.size = " << buf.size() << "\n";
 #endif
-      memcpy(buf.data(), data.data(), buf.size() * sizeof(uint32_t));
+      memcpy(buf.data(), data.data(), buf.size() * sizeof(std::uint32_t));
     }
 
     return buf;
   }
 
-  std::vector<int32_t> GetAsInt32Array() const {
-    std::vector<int32_t> buf;
+  std::vector<std::int32_t> GetAsInt32Array() const {
+    std::vector<std::int32_t> buf;
 
-    if (((GetStride() == 0) || (GetStride() == sizeof(int32_t))) &&
+    if (((GetStride() == 0) || (GetStride() == sizeof(std::int32_t))) &&
         (GetDataType() == BUFFER_DATA_TYPE_INT)) {
       buf.resize(GetNumElements() * size_t(GetNumCoords()));
 #if TINYUSDZ_LOCAL_DEBUG_PRINT
       std::cout << "buf.size = " << buf.size() << "\n";
 #endif
-      memcpy(buf.data(), data.data(), buf.size() * sizeof(int32_t));
+      memcpy(buf.data(), data.data(), buf.size() * sizeof(std::int32_t));
     }
 
     return buf;
@@ -1361,7 +1361,7 @@ struct ConnectionPath {
   Path path;  // original Path information in USD
 
   std::string token;  // token(or string) in USD
-  int64_t index{-1};  // corresponding array index(e.g. the array index to
+  std::int64_t index{-1};  // corresponding array index(e.g. the array index to
                       // `Scene.shaders`)
 };
 
@@ -1387,9 +1387,9 @@ struct PrimAttrib {
   // TODO: Use union struct
   bool boolVal;
   int intVal;
-  uint32_t uintVal;
-  int64_t int64Val;
-  uint64_t uint64Val;
+  std::uint32_t uintVal;
+  std::int64_t int64Val;
+  std::uint64_t uint64Val;
   float floatVal;
   double doubleVal;
   std::string stringVal;  // token, string
@@ -1408,7 +1408,7 @@ struct PrimvarReader {
 
 // Predefined node class
 struct Xform {
-  int64_t parent_id{-1};  // Index to xform node
+  std::int64_t parent_id{-1};  // Index to xform node
 
   Matrix4d matrix;
 
@@ -1418,7 +1418,7 @@ struct Xform {
   Visibility visibility{VisibilityInherited};
   Purpose purpose{PurposeDefault};
 
-  // std::vector<int32_t> xformOpOrder; // T.B.D.
+  // std::vector<std::int32_t> xformOpOrder; // T.B.D.
 };
 
 struct UVCoords {
@@ -1427,7 +1427,7 @@ struct UVCoords {
   Variability variability;
 
   // non-empty when UV has its own indices.
-  std::vector<uint32_t> indices;  // UV indices. Usually varying
+  std::vector<std::uint32_t> indices;  // UV indices. Usually varying
 };
 
 struct Extent {
@@ -1446,7 +1446,7 @@ struct GeomMesh {
 
   std::string name;
 
-  int64_t parent_id{-1};  // Index to xform node
+  std::int64_t parent_id{-1};  // Index to xform node
 
   //
   // Predefined attribs.
@@ -1481,8 +1481,8 @@ struct GeomMesh {
 
   PrimAttrib velocitiess;  // Usually float3[], varying
 
-  std::vector<int32_t> faceVertexCounts;
-  std::vector<int32_t> faceVertexIndices;
+  std::vector<std::int32_t> faceVertexCounts;
+  std::vector<std::int32_t> faceVertexIndices;
 
   //
   // Properties
@@ -1497,12 +1497,12 @@ struct GeomMesh {
   //
   // SubD attribs.
   //
-  std::vector<int32_t> cornerIndices;
+  std::vector<std::int32_t> cornerIndices;
   std::vector<float> cornerSharpnesses;
-  std::vector<int32_t> creaseIndices;
-  std::vector<int32_t> creaseLengths;
+  std::vector<std::int32_t> creaseIndices;
+  std::vector<std::int32_t> creaseLengths;
   std::vector<float> creaseSharpnesses;
-  std::vector<int32_t> holeIndices;
+  std::vector<std::int32_t> holeIndices;
   std::string interpolateBoundary =
       "edgeAndCorner";  // "none", "edgeAndCorner" or "edgeOnly"
   SubdivisionScheme subdivisionScheme;
@@ -1517,11 +1517,11 @@ struct GeomMesh {
 struct Material {
   std::string name;
 
-  int64_t parent_id{-1};
+  std::int64_t parent_id{-1};
 
-  int64_t surface_shader_id{-1};  // Index to `Scene::shaders`
-  int64_t volume_shader_id{-1};   // Index to `Scene::shaders`
-  // int64_t displacement_shader_id{-1}; // Index to shader object. TODO(syoyo)
+  std::int64_t surface_shader_id{-1};  // Index to `Scene::shaders`
+  std::int64_t volume_shader_id{-1};   // Index to `Scene::shaders`
+  // std::int64_t displacement_shader_id{-1}; // Index to shader object. TODO(syoyo)
 };
 
 // result = (texture_id == -1) ? use color : lookup texture
@@ -1536,7 +1536,7 @@ struct Color3OrTexture {
 
   std::string path;  // path to .connect(We only support texture file connection
                      // at the moment)
-  int64_t texture_id{-1};
+  std::int64_t texture_id{-1};
 
   bool HasTexture() const { return texture_id > -1; }
 };
@@ -1548,7 +1548,7 @@ struct FloatOrTexture {
 
   std::string path;  // path to .connect(We only support texture file connection
                      // at the moment)
-  int64_t texture_id{-1};
+  std::int64_t texture_id{-1};
 
   bool HasTexture() const { return texture_id > -1; }
 };
@@ -1574,7 +1574,7 @@ struct UsdTranform2d {
 // UsdUvTexture
 struct UVTexture {
   std::string asset;  // asset name(usually file path)
-  int64_t image_id{
+  std::int64_t image_id{
       -1};  // TODO(syoyo): Consider UDIM `@textures/occlusion.<UDIM>.tex@`
 
   TextureWrap wrapS;
@@ -1634,34 +1634,34 @@ struct PreviewSurface {
   //
   // Outputs
   //
-  int64_t surface_id{-1};       // index to `Scene::shaders`
-  int64_t displacement_id{-1};  // index to `Scene::shaders`
+  std::int64_t surface_id{-1};       // index to `Scene::shaders`
+  std::int64_t displacement_id{-1};  // index to `Scene::shaders`
 };
 
-using StringOrId = std::pair<std::string, int32_t>;
+using StringOrId = std::pair<std::string, std::int32_t>;
 
 // Simple bidirectional Path(string) <-> index lookup
 struct StringAndIdMap {
-  void add(int32_t key, const std::string &val) {
+  void add(std::int32_t key, const std::string &val) {
     _i_to_s[key] = val;
     _s_to_i[val] = key;
   }
 
-  void add(const std::string &key, int32_t val) {
+  void add(const std::string &key, std::int32_t val) {
     _s_to_i[key] = val;
     _i_to_s[val] = key;
   }
 
-  size_t count(int32_t i) const { return _i_to_s.count(i); }
+  size_t count(std::int32_t i) const { return _i_to_s.count(i); }
 
   size_t count(const std::string &s) const { return _s_to_i.count(s); }
 
-  std::string at(int32_t i) const { return _i_to_s.at(i); }
+  std::string at(std::int32_t i) const { return _i_to_s.at(i); }
 
-  int32_t at(std::string s) const { return _s_to_i.at(s); }
+  std::int32_t at(std::string s) const { return _s_to_i.at(s); }
 
-  std::map<int32_t, std::string> _i_to_s;  // index -> string
-  std::map<std::string, int32_t> _s_to_i;  // string -> index
+  std::map<std::int32_t, std::string> _i_to_s;  // index -> string
+  std::map<std::string, std::int32_t> _s_to_i;  // string -> index
 };
 
 // Corresponds to USD's Scope.
@@ -1671,7 +1671,7 @@ struct StringAndIdMap {
 struct Group {
   std::string name;
 
-  int64_t parent_id{-1};
+  std::int64_t parent_id{-1};
 
   Visibility visibility{VisibilityInherited};
   Purpose purpose{PurposeDefault};
@@ -1697,15 +1697,15 @@ struct Node {
   // index to a scene object.
   // For example, Lookup `xforms[node_idx]` When node type is XFORM
   //
-  int64_t index{-1};
+  std::int64_t index{-1};
 
-  int64_t parent;                 // parent node index. Example: `nodes[parent]`
-  std::vector<int64_t> children;  // child node indices.
+  std::int64_t parent;                 // parent node index. Example: `nodes[parent]`
+  std::vector<std::int64_t> children;  // child node indices.
 };
 
 struct Scene {
   std::string name;       // Scene name
-  int64_t root_node{-1};  // index to `xforms`(root Xform node)
+  std::int64_t root_node{-1};  // index to `xforms`(root Xform node)
 
   std::vector<Node> nodes;  // Node hierarchies
 
@@ -1742,7 +1742,7 @@ struct USDLoadOptions {
   // Set the maximum memory limit advisorily(including image data).
   // This feature would be helpful if you want to load USDZ model in mobile
   // device.
-  int32_t max_memory_limit_in_mb{10000};  // in [mb] Default 10GB
+  std::int32_t max_memory_limit_in_mb{10000};  // in [mb] Default 10GB
 
   ///
   /// Loads asset data(e.g. texture image, audio). Default is true.
@@ -1802,7 +1802,7 @@ bool LoadUSDCFromFile(const std::string &filename, Scene *scene,
 ///
 /// @return true upon success
 ///
-bool LoadUSDCFromMemory(const uint8_t *addr, const size_t length, Scene *scene,
+bool LoadUSDCFromMemory(const std::uint8_t *addr, const size_t length, Scene *scene,
                         std::string *warn, std::string *err,
                         const USDLoadOptions &options = USDLoadOptions());
 
